@@ -10,6 +10,8 @@ class RollEnum(str, Enum):
 
 class Admin(Base):
     
+    __tablename__ = "admins"
+    
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     
     name: Mapped[str] = mapped_column(String(30), nullable=False)
@@ -23,7 +25,7 @@ class Admin(Base):
     roll: Mapped[RollEnum] = mapped_column(
         SQLEnum(
             RollEnum,
-            name="order_status",
+            name="admin_status",
             values_callable=lambda enum_cls: [
                 member.value for member in enum_cls
             ]

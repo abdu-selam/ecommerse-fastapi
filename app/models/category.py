@@ -6,6 +6,8 @@ from app.configs.db import Base
 
 class Category(Base):
     
+    __tablename__ = "categories"
+    
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     
     name: Mapped[str] = mapped_column(String(50), nullable=False)
