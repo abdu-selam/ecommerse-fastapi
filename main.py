@@ -2,4 +2,4 @@ import uvicorn
 from app.utils.env import settings
 
 if __name__ == "__main__":
-    uvicorn.run("app.app:app", host="0.0.0.0", port=3500, reload=True)
+    uvicorn.run("app.app:app", host="0.0.0.0", port=settings.PORT, reload=True)
