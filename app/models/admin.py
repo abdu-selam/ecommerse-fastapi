@@ -9,12 +9,19 @@ class RollEnum(str, Enum):
     ADMIN = "admin"
 
 class Admin(Base):
+    
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    
     name: Mapped[str] = mapped_column(String(30), nullable=False)
-    email: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(
+        String(50), 
+        unique=True, 
+        nullable=False
+    )
     password: Mapped[str] = mapped_column(Text, nullable=False)
 
-    roll: Mapped[RollEnum] = mapped_column(SQLEnum(
+    roll: Mapped[RollEnum] = mapped_column(
+        SQLEnum(
             RollEnum,
             name="order_status",
             values_callable=lambda enum_cls: [
@@ -27,8 +34,12 @@ class Admin(Base):
 
     access_token: Mapped[str] = mapped_column(Text)
     access_created_at: Mapped[datetime] = mapped_column(TIMESTAMP)
+    
     created_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP, 
+        TIMESTAMP,
         server_default=func.current_timestamp()
     )
-    updated_at: Mapped[datetime] = mapped_column(TIMESTAMP)
+    updated_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP,
+        server_default=func.current_timestamp()
+    )

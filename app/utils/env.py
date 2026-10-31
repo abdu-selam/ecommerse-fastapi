@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    PORT: str
+    PORT: int
     PG_KEY: str
 
     model_config = {
