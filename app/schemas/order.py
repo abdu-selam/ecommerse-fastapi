@@ -4,7 +4,7 @@ from datetime import datetime, UTC
 from typing import Literal
 
 class OrderDB(BaseModel):
-    model_config = ConfigDict(populate_by_name=True, frozen=True)
+    model_config = ConfigDict(populate_by_name=True)
        
     uid: UUID = Field(default_factory=uuid4, alias="id")
         

@@ -3,7 +3,7 @@ from datetime import datetime, UTC
 from uuid import UUID, uuid4
 
 class CategoryDB(BaseModel):
-    model_config = ConfigDict(populate_by_name=True, frozen=True)
+    model_config = ConfigDict(populate_by_name=True)
    
     uid: UUID = Field(default_factory=uuid4, alias="id")
     name: str
