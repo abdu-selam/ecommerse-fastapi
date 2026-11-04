@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from app.configs.db import Base, engine
 from contextlib import asynccontextmanager
 
+from app.routes import auth
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     # at startup
@@ -10,6 +12,8 @@ async def lifespan(_app: FastAPI):
 
     yield
     # at shutdown
-    engine.dispose()
+    await engine.dispose()
 
 app = FastAPI(lifespan=lifespan)
+
+app.include_router(auth.router, prefix="/api/auth", tags=["auth"])

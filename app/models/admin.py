@@ -34,8 +34,8 @@ class Admin(Base):
         nullable=False
     )
 
-    access_token: Mapped[str] = mapped_column(Text)
-    access_created_at: Mapped[datetime] = mapped_column(TIMESTAMP)
+    refresh_token: Mapped[str] = mapped_column(Text)
+    refresh_created_at: Mapped[datetime] = mapped_column(TIMESTAMP)
 
     forgot_token: Mapped[str] = mapped_column(Text)
     forgot_created_at: Mapped[datetime] = mapped_column(TIMESTAMP)

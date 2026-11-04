@@ -14,11 +14,22 @@ class AdminDB(BaseModel):
 
     roll: Literal["owner", "admin"] = "owner"
 
-    access_token: str | None = None
-    access_created_at: datetime | None = None
+    refresh_token: str | None = None
+    refresh_created_at: datetime | None = None
 
     forgot_token: str | None = None
     forgot_created_at: datetime | None = None
     
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+class AdminLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class AdminLoginResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
+    name: str
+    email: EmailStr
+    roll: Literal["owner", "admin"] = "owner"
