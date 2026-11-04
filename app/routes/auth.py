@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import Annotated
-from datetime import datetime, UTC
+from datetime import datetime, timezone
 
 from app.schemas.admin import AdminLogin, AdminLoginResponse
 from app.utils import password, jwt, cookie
@@ -32,7 +32,7 @@ async def login(user: AdminLogin, db: DBSession, response: Response):
     refresh_token = jwt.sign_refresh(admin.id)
 
     admin.refresh_token = refresh_token
-    admin.refresh_created_at = datetime(UTC)
+    admin.refresh_created_at = datetime.now(timezone.utc)
     # save user
     db.add(admin)
     await db.commit()

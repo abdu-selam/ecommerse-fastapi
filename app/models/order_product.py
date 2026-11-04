@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, Integer, Double, TIMESTAMP, func, ForeignKey
+from sqlalchemy import String, Integer, Double, DateTime, func, ForeignKey
 from datetime import datetime
 from typing import TYPE_CHECKING
 
@@ -35,10 +35,10 @@ class OrderProduct(Base):
     amount: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     
     created_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP,
+        DateTime(timezone=True),
         server_default=func.current_timestamp()
     )
     updated_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP,
+        DateTime(timezone=True),
         server_default=func.current_timestamp()
     )

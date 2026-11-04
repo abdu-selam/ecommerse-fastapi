@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, Text, TIMESTAMP, func, JSON
+from sqlalchemy import String, Text, DateTime, func, JSON
 from datetime import datetime
 from typing import TYPE_CHECKING
 
@@ -26,10 +26,10 @@ class Category(Base):
     )
     
     created_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP,
+        DateTime(timezone=True),
         server_default=func.current_timestamp()
     )
     updated_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP,
+        DateTime(timezone=True),
         server_default=func.current_timestamp()
     )

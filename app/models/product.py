@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, Text, TIMESTAMP, func,Double, JSON, Enum as SQLEnum, ForeignKey
+from sqlalchemy import String, Text, DateTime, func,Double, JSON, Enum as SQLEnum, ForeignKey
 from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING
@@ -57,10 +57,10 @@ class Product(Base):
     )
     
     created_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP,
+        DateTime(timezone=True),
         server_default=func.current_timestamp()
     )
     updated_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP,
+        DateTime(timezone=True),
         server_default=func.current_timestamp()
     )

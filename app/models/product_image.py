@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, Text, TIMESTAMP, func, Enum as SQLEnum, ForeignKey
+from sqlalchemy import String, Text, DateTime, func, Enum as SQLEnum, ForeignKey
 from datetime import datetime
 from enum import Enum
 
@@ -37,10 +37,10 @@ class ProductImage(Base):
     )
     
     created_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP,
+        DateTime(timezone=True),
         server_default=func.current_timestamp()
     )
     updated_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP,
+        DateTime(timezone=True),
         server_default=func.current_timestamp()
     )

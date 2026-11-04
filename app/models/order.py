@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, Text, TIMESTAMP, func, Enum as SQLEnum
+from sqlalchemy import String, Text, DateTime, func, Enum as SQLEnum
 from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING
@@ -35,7 +35,7 @@ class Order(Base):
         default=StatusEnum.UNPAID,
         nullable=False
     ),
-    status_update: Mapped[datetime] = mapped_column(TIMESTAMP)
+    status_update: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     
     order_type: Mapped[str] = mapped_column(
         SQLEnum(
@@ -59,10 +59,10 @@ class Order(Base):
     order_products: Mapped[list["OrderProduct"]] = relationship()
     
     created_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP,
+        DateTime(timezone=True),
         server_default=func.current_timestamp()
     )
     updated_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP,
+        DateTime(timezone=True),
         server_default=func.current_timestamp()
     )

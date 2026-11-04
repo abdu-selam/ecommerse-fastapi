@@ -1,5 +1,5 @@
 from app.configs.db import Base
-from sqlalchemy import String, Text, Enum as SQLEnum, TIMESTAMP, func
+from sqlalchemy import String, Text, Enum as SQLEnum, func, DateTime
 from sqlalchemy.orm import mapped_column, Mapped
 from enum import Enum
 from datetime import datetime
@@ -34,17 +34,17 @@ class Admin(Base):
         nullable=False
     )
 
-    refresh_token: Mapped[str] = mapped_column(Text)
-    refresh_created_at: Mapped[datetime] = mapped_column(TIMESTAMP)
+    refresh_token: Mapped[str] = mapped_column(Text, nullable=True)
+    refresh_created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    forgot_token: Mapped[str] = mapped_column(Text)
-    forgot_created_at: Mapped[datetime] = mapped_column(TIMESTAMP)
+    forgot_token: Mapped[str] = mapped_column(Text, nullable=True)
+    forgot_created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
     
     created_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP,
+        DateTime(timezone=True),
         server_default=func.current_timestamp()
     )
     updated_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP,
+        DateTime(timezone=True),
         server_default=func.current_timestamp()
     )
