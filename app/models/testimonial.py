@@ -1,6 +1,10 @@
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Text, TIMESTAMP, func, Double, ForeignKey
 from datetime import datetime
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.models.product import Product
 
 from app.configs.db import Base
 
@@ -13,7 +17,7 @@ class Testimonial(Base):
     name: Mapped[str] = mapped_column(String(50), nullable=False)
     message: Mapped[str] = mapped_column(Text, nullable=False)
     
-    product: Mapped[str] = mapped_column(
+    product_id: Mapped[str] = mapped_column(
         ForeignKey(
             "products.id",
             ondelete="CASCADE"
@@ -21,6 +25,10 @@ class Testimonial(Base):
         nullable=False
     )
     stars: Mapped[float] = mapped_column(Double(3,2), default=5.0, nullable=False)
+
+    product: Mapped["Product"] = relationship(
+        back_populates="testimonals"
+    )
     
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP,

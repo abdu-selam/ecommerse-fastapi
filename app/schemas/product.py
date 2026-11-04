@@ -15,7 +15,7 @@ class ProductDB(BaseModel):
     rating: float = Field(default_factory=lambda: 0.0, ge=0, le=5)
     condition: Literal["used", "new", "repack"] = "new"
     
-    category: UUID
+    category_id: UUID
     
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))

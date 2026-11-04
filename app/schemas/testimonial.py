@@ -11,7 +11,7 @@ class TestimonialDB(BaseModel):
     message: str 
     stars: float = Field(default_factory=lambda: 0.0, ge=0, le=5)
     
-    product: UUID
+    product_id: UUID
     
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))

@@ -1,6 +1,10 @@
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Integer, Double, TIMESTAMP, func, ForeignKey
 from datetime import datetime
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.models.product import Product
 
 from app.configs.db import Base
 
@@ -24,6 +28,9 @@ class OrderProduct(Base):
         ), 
         nullable=False
     )
+
+    product: Mapped["Product"] = relationship()
+    
     price: Mapped[float] = mapped_column(Double(10,2), nullable=False, default=0.0)
     amount: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     

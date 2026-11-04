@@ -7,7 +7,7 @@ class ProductImageDB(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
        
     uid: UUID = Field(default_factory=uuid4, alias="id")
-    product: UUID
+    product_id: UUID
     
     image_type: Literal["image", "thumb"] = "image"
     

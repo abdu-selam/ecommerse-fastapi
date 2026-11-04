@@ -1,7 +1,13 @@
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Text, TIMESTAMP, func,Double, JSON, Enum as SQLEnum, ForeignKey
 from datetime import datetime
 from enum import Enum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.models.category import Category
+    from app.models.product_image import ProductImage
+    from app.models.testimonial import Testimonial
 
 from app.configs.db import Base
 
@@ -34,12 +40,20 @@ class Product(Base):
         nullable=False
     ),
     
-    category: Mapped[str] = mapped_column(
+    category_id: Mapped[str] = mapped_column(
         ForeignKey(
             "categories.id",
             ondelete="CASCADE"
         ), 
         nullable=False
+    )
+
+    category: Mapped["Category"] = relationship(
+        back_populates="products"
+    )
+    images: Mapped[list["ProductImage"]] = relationship()
+    testimonals: Mapped[list["Testimonial"]] = relationship(
+        back_populates="product"
     )
     
     created_at: Mapped[datetime] = mapped_column(

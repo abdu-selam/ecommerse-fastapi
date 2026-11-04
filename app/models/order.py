@@ -1,7 +1,11 @@
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, Text, TIMESTAMP, func, JSON, Enum as SQLEnum
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import String, Text, TIMESTAMP, func, Enum as SQLEnum
 from datetime import datetime
 from enum import Enum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.models.order_product import OrderProduct
 
 from app.configs.db import Base
 
@@ -51,6 +55,8 @@ class Order(Base):
     
     stripe_session_id: Mapped[str] = mapped_column(Text)
     receipt: Mapped[str] = mapped_column(Text)
+
+    order_products: Mapped[list["OrderProduct"]] = relationship()
     
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP,

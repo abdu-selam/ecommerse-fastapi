@@ -1,5 +1,5 @@
 from app.configs.db import Base
-from sqlalchemy import String, Text, Integer, Enum as SQLEnum, TIMESTAMP, func
+from sqlalchemy import String, Text, Enum as SQLEnum, TIMESTAMP, func
 from sqlalchemy.orm import mapped_column, Mapped
 from enum import Enum
 from datetime import datetime

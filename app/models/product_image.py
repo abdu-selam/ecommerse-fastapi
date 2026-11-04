@@ -28,7 +28,7 @@ class ProductImage(Base):
         )
     ),
     
-    product: Mapped[str] = mapped_column(
+    product_id: Mapped[str] = mapped_column(
         ForeignKey(
             "products.id",
             ondelete="CASCADE"
