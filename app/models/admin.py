@@ -34,9 +34,6 @@ class Admin(Base):
         nullable=False
     )
 
-    refresh_token: Mapped[str] = mapped_column(Text, nullable=True)
-    refresh_created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
-
     forgot_token: Mapped[str] = mapped_column(Text, nullable=True)
     forgot_created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
     

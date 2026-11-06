@@ -1,13 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Response
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import Annotated
 from datetime import datetime, timezone
+from uuid import uuid4
 
 from app.schemas.admin import AdminLogin, AdminLoginResponse
 from app.utils import password, jwt, cookie
 from app.configs.db import get_db
 from app.models.admin import Admin
+from app.models.refresh_token import RefreshToken
 
 router = APIRouter()
 
@@ -31,12 +33,15 @@ async def login(user: AdminLogin, db: DBSession, response: Response):
     access_token = jwt.sign_access(admin.id)
     refresh_token = jwt.sign_refresh(admin.id)
 
-    admin.refresh_token = refresh_token
-    admin.refresh_created_at = datetime.now(timezone.utc)
+    refresh = RefreshToken(
+        id=str(uuid4()),
+        token=refresh_token,
+        admin_id=admin.id
+    )
+    
     # save user
-    db.add(admin)
+    db.add(refresh)
     await db.commit()
-    await db.refresh(admin)
 
     # send cookie
     cookie.send_cookie(response, "access", access_token)
