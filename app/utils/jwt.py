@@ -20,17 +20,20 @@ def sign_access(user_id: str):
     return token
 
 def verify_access(token: str):
-    payload = jwt.decode(
-        token,
-        settings.JWT_ACCESS,
-        algorithms=[ALGORITHM]
-    )
+    try:
+        payload = jwt.decode(
+                token,
+                settings.JWT_ACCESS,
+                algorithms=[ALGORITHM]
+            )
+        
+        return payload
+    except:
+        return None
 
-    return payload
-
-
-def sign_refresh(user_id: str):
+def sign_refresh(user_id: str, refresh_id: str):
     payload = {
+        "id": refresh_id,
         "sub": user_id,
         "iat": datetime.now(timezone.utc),
         "exp": datetime.now(timezone.utc) + timedelta(days=15)
@@ -45,10 +48,13 @@ def sign_refresh(user_id: str):
     return token
 
 def verify_refresh(token: str):
-    payload = jwt.decode(
-        token,
-        settings.JWT_REFRESH,
-        algorithms=[ALGORITHM]
-    )
-
-    return payload
+    try:
+        payload = jwt.decode(
+                token,
+                settings.JWT_REFRESH,
+                algorithms=[ALGORITHM]
+            )
+        
+        return payload
+    except:
+        return None

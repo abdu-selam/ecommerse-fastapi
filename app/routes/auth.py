@@ -10,6 +10,7 @@ from app.utils import password, jwt, cookie
 from app.configs.db import get_db
 from app.models.admin import Admin
 from app.models.refresh_token import RefreshToken
+from app.dependencies.auth import protected_route
 
 router = APIRouter()
 
@@ -30,11 +31,12 @@ async def login(user: AdminLogin, db: DBSession, response: Response):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     
     # gen for jwt
+    refresh_id = str(uuid4())
     access_token = jwt.sign_access(admin.id)
-    refresh_token = jwt.sign_refresh(admin.id)
+    refresh_token = jwt.sign_refresh(admin.id, refresh_id)
 
     refresh = RefreshToken(
-        id=str(uuid4()),
+        id=refresh_id,
         token=refresh_token,
         admin_id=admin.id
     )
@@ -50,3 +52,13 @@ async def login(user: AdminLogin, db: DBSession, response: Response):
     # send response
     admin_response = AdminLoginResponse.model_validate(admin)
     return admin_response
+
+
+@router.delete("/logout")
+async def logout(request: Request, response: Response,db: DBSession, protect = Depends(protected_route)):
+    await db.delete(protect.get("refresh"))
+
+    response.delete_cookie("access", path="/")
+    response.delete_cookie("refresh", path="/api/auth/refresh")
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
