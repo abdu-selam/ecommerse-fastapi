@@ -140,3 +140,89 @@ async def reset_password(token: str, db: DBSession, user: AdminResetPassword):
     await db.commit()
 
     return {"message": "Password has been reseted"}
+
+@router.patch("/resend-email")
+async def resend_email(db: DBSession, user: AdminForgotPassword):
+    result = await db.execute(
+        select(Admin).where(Admin.email == user.email)
+    )
+
+    admin = result.scalar_one_or_none()
+
+    if not admin:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    token = password.gen_token()
+    admin.forgot_token = token
+    admin.forgot_created_at = datetime.now(timezone.utc)
+
+    db.add(admin)
+    await db.commit()
+
+    html = forgot_password_html(token)
+    await send_email("Reset Password Email", html)
+
+    return {"message": "forgot password email has been resent"}
+
+@router.get("/me")
+async def me(protect: ProtectedRoute):
+    response = AdminLoginResponse.model_validate(protect.user)
+    return response
+
+@router.patch("/refresh")
+async def refresh(request: Request, db: DBSession, response: Response):
+    refresh_token = request.cookies.get("refresh")
+
+    if not refresh_token:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid Token")
+
+    payload = jwt.verify_refresh(refresh_token)
+    if not payload:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Token")
+
+    result = await db.execute(
+        select(RefreshToken).where(RefreshToken.id == payload.get("id"))
+    )
+
+    refresh_token = result.scalar_one_or_none()
+
+    if not refresh_token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Token")
+
+    difference = (datetime.now(timezone.utc) - refresh_token.created_at).total_seconds() / 3600
+    if difference > 6:
+        await db.delete(refresh_token)
+        await db.commit()
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Expired Token")
+
+    result = await db.execute(
+        select(Admin).where(Admin.id == payload.get("sub"))
+    )
+
+    admin = result.scalar_one_or_none()
+
+    if not admin:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    refresh_id = str(uuid4())
+    access_token = jwt.sign_access(admin.id)
+    refresh_cookie = jwt.sign_refresh(admin.id, refresh_id)
+
+    refresh_gen = RefreshToken(
+        id=refresh_id,
+        token=refresh_cookie,
+        admin_id=admin.id
+    )
+    
+    # save user
+    db.add(refresh_gen)
+    await db.delete(refresh_token)
+    await db.commit()
+
+    # send cookie
+    cookie.send_cookie(response, "access", access_token)
+    cookie.send_cookie(response, "refresh", refresh_cookie)
+
+    # send response
+    admin_response = AdminLoginResponse.model_validate(admin)
+    return admin_response
