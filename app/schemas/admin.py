@@ -33,3 +33,7 @@ class AdminLoginResponse(BaseModel):
     name: str
     email: EmailStr
     roll: Literal["owner", "admin"] = "owner"
+
+class AdminChangePassword(BaseModel):
+    oldpassword: str
+    newpassword: str

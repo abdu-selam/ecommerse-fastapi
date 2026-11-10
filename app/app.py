@@ -1,8 +1,13 @@
-from fastapi import FastAPI
-from app.configs.db import Base, engine
+from fastapi import FastAPI, Depends
 from contextlib import asynccontextmanager
+from typing import Annotated
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.configs.db import Base, engine, get_db
 from app.routes import auth
+from app.seed import seed as seed_start
+
+DBSession = Annotated[AsyncSession, Depends(get_db)]
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
@@ -17,3 +22,8 @@ async def lifespan(_app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+
+@app.get("/api/seed")
+async def seed(db: DBSession):
+    await seed_start(db)
+    return {"message":"seeded everything!"}

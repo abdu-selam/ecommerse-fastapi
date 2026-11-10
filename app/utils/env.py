@@ -2,10 +2,16 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     PORT: int
+    PY_ENV: str
+
     PG_KEY: str
+    
     JWT_ACCESS: str
     JWT_REFRESH: str
-    PY_ENV: str
+
+    ADMIN_EMAIL: str
+    ADMIN_PASS: str
+    ADMIN_NAME: str
 
     model_config = {
         "env_file": ".env"

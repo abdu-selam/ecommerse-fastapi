@@ -6,19 +6,26 @@ from sqlalchemy import select
 from typing import Annotated
 from app.models.admin import Admin
 from app.models.refresh_token import RefreshToken
+from pydantic import BaseModel, ConfigDict
 
 DBSession = Annotated[AsyncSession, Depends(get_db)]
 
-async def protected_route(request: Request, db: DBSession):
+
+class ProtectedReturn(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    user: Admin | None = None
+    refresh: RefreshToken | None = None
+    
+
+async def protected_route(request: Request, db: DBSession) -> ProtectedReturn:
     access_token = request.cookies.get("access")
     refresh_token = request.cookies.get("refresh")
 
-    print(access_token)
     if not access_token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token Missed")
 
     payload = verify_access(access_token)
-    print(payload)
     if not payload:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Token")
 
@@ -31,7 +38,9 @@ async def protected_route(request: Request, db: DBSession):
         select(RefreshToken).where(RefreshToken.id == payloadRefresh.get("id"))
     )
 
-    return {
-        "user": user.scalar_one_or_none(),
-        "refresh": refresh.scalar_one_or_none()
-    }
+    result = ProtectedReturn(
+        user=user.scalar_one_or_none(), 
+        refresh=refresh.scalar_one_or_none()
+    )
+
+    return result

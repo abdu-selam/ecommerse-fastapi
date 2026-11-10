@@ -2,19 +2,20 @@ from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import Annotated
-from datetime import datetime, timezone
 from uuid import uuid4
 
-from app.schemas.admin import AdminLogin, AdminLoginResponse
+from app.schemas.admin import AdminLogin, AdminLoginResponse, AdminChangePassword
 from app.utils import password, jwt, cookie
 from app.configs.db import get_db
 from app.models.admin import Admin
 from app.models.refresh_token import RefreshToken
-from app.dependencies.auth import protected_route
+from app.dependencies.auth import protected_route, ProtectedReturn
+from app.utils import password
 
 router = APIRouter()
 
 DBSession = Annotated[AsyncSession, Depends(get_db)]
+ProtectedRoute =  Annotated[ProtectedReturn, Depends(protected_route)]
 
 @router.post("/login", response_model=AdminLoginResponse)
 async def login(user: AdminLogin, db: DBSession, response: Response):
@@ -55,10 +56,25 @@ async def login(user: AdminLogin, db: DBSession, response: Response):
 
 
 @router.delete("/logout")
-async def logout(request: Request, response: Response,db: DBSession, protect = Depends(protected_route)):
-    await db.delete(protect.get("refresh"))
+async def logout(request: Request, response: Response,db: DBSession, protect: ProtectedRoute):
+    await db.delete(protect.refresh)
 
     response.delete_cookie("access", path="/")
     response.delete_cookie("refresh", path="/api/auth/refresh")
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.patch("/change-password")
+async def change_password(passwords: AdminChangePassword, protect: ProtectedRoute, db: DBSession):
+    is_correct = password.verify(passwords.oldpassword, protect.user.password)
+    if not is_correct:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect Password")
+
+    hashed = password.hash(passwords.newpassword)
+    protect.user.password = hashed
+
+    db.add(protect.user)
+    await db.commit()
+
+    return {"message": "Pasword changed"}
