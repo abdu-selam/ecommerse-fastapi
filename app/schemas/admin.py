@@ -40,3 +40,7 @@ class AdminChangePassword(BaseModel):
 
 class AdminForgotPassword(BaseModel):
     email: EmailStr
+
+class AdminResetPassword(BaseModel):
+    email: EmailStr
+    password: str

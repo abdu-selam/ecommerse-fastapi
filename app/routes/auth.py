@@ -9,7 +9,8 @@ from app.schemas.admin import (
     AdminLogin, 
     AdminLoginResponse, 
     AdminChangePassword, 
-    AdminForgotPassword
+    AdminForgotPassword,
+    AdminResetPassword
 )
 from app.utils import password, jwt, cookie
 from app.configs.db import get_db
@@ -110,3 +111,32 @@ async def forgot_password(user: AdminForgotPassword, db: DBSession):
     await send_email("Reset Password Email", html)
 
     return {"message": "forgot password email has been sent"}
+
+@router.patch("/reset/{token}")
+async def reset_password(token: str, db: DBSession, user: AdminResetPassword):
+    result = await db.execute(
+        select(Admin).where(Admin.email == user.email)
+    )
+
+    admin = result.scalar_one_or_none()
+
+    if not admin:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    if admin.forgot_token != token:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid Token")
+
+    admin.forgot_token = None
+    difference = (datetime.now(timezone.utc) - admin.forgot_created_at).total_seconds() / 3600
+    if difference > 6:
+        db.add(admin)
+        await db.commit()
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Expired Token")
+
+    hashed = password.hash(user.password)
+    admin.password = hashed
+
+    db.add(admin)
+    await db.commit()
+
+    return {"message": "Password has been reseted"}
