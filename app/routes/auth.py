@@ -3,14 +3,22 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import Annotated
 from uuid import uuid4
+from datetime import datetime, timezone
 
-from app.schemas.admin import AdminLogin, AdminLoginResponse, AdminChangePassword
+from app.schemas.admin import (
+    AdminLogin, 
+    AdminLoginResponse, 
+    AdminChangePassword, 
+    AdminForgotPassword
+)
 from app.utils import password, jwt, cookie
 from app.configs.db import get_db
 from app.models.admin import Admin
 from app.models.refresh_token import RefreshToken
 from app.dependencies.auth import protected_route, ProtectedReturn
 from app.utils import password
+from app.utils.jinja_email import forgot_password_html
+from app.configs.email import send_email
 
 router = APIRouter()
 
@@ -78,3 +86,27 @@ async def change_password(passwords: AdminChangePassword, protect: ProtectedRout
     await db.commit()
 
     return {"message": "Pasword changed"}
+
+@router.post("/forgot")
+async def forgot_password(user: AdminForgotPassword, db: DBSession):
+    email = user.email
+    result = await db.execute(
+        select(Admin).where(Admin.email == email)
+    )
+
+    admin = result.scalar_one_or_none()
+
+    if not admin:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    token = password.gen_token()
+    admin.forgot_token = token
+    admin.forgot_created_at = datetime.now(timezone.utc)
+
+    db.add(admin)
+    await db.commit()
+
+    html = forgot_password_html(token)
+    await send_email("Reset Password Email", html)
+
+    return {"message": "forgot password email has been sent"}

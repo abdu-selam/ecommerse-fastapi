@@ -37,3 +37,6 @@ class AdminLoginResponse(BaseModel):
 class AdminChangePassword(BaseModel):
     oldpassword: str
     newpassword: str
+
+class AdminForgotPassword(BaseModel):
+    email: EmailStr

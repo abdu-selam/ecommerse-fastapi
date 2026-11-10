@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     PY_ENV: str
 
     PG_KEY: str
+    CLIENT_URL: str
 
     JWT_ACCESS: str
     JWT_REFRESH: str
